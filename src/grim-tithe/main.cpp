@@ -1,10 +1,8 @@
-#include <iostream>
-#include <vulkan/vulkan.h>
+#include "gt-game.hpp"
 
 int
 main()
 {
-    std::cout << "Hello, Vulkan!\n";
-    std::cin.get();
+    gt::game::run();
     return 0;
 }

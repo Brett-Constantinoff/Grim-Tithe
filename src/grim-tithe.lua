@@ -17,8 +17,10 @@ project "Grim Tithe"
         "**.c",
     }
 
-    includedirs { "grim-tithe/", vulkan .. "/Include" }
-    links {vulkan .. "/Lib/vulkan-1.lib"} 
+    includedirs { "grim-tithe/", "%{wks.location}/external/Glfw/include/", 
+        "%{wks.location}/external/glm/", 
+        vulkan .. "/Include" }
+    links {vulkan .. "/Lib/vulkan-1.lib", "Glfw", "Glm"} 
 
     filter "configurations:Debug"
         defines { "DEBUG", "DEBUG_SHADER" }

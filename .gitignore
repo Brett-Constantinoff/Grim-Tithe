@@ -12,6 +12,7 @@ external/VulkanSDK
 *.vcxproj.user
 *.vscproj
 *.vscproj.user
+*.vcxproj.filters
 .vscode/
 *.user
 *.log

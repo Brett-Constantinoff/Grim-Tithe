@@ -14,3 +14,7 @@ workspace "Grim Tithe"
 
 group "Game"
     include "src/grim-tithe.lua"
+
+group "External"
+    include "external/glfw.lua"
+    include "external/glm.lua"
