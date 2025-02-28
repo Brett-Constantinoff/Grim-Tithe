@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "utilities.hpp"
 #include "vk.hpp"
 
@@ -6,9 +8,47 @@ namespace gt::vk
     static const char *s_engineName = "No Engine";
     static const char *s_appName    = "Grim Tithe";
 
+    static const std::vector<const char *> s_validationLayers = {"VK_LAYER_KHRONOS_validation"};
+
+    #ifdef NODEBUG
+    static const bool s_enableValidation = false;
+    #else
+    static const bool s_enableValidation = true;
+    #endif
+
     VkInstance &
         createInstance(uint32_t extensionCount, const char **c_extensions)
     {
+        // check for validation
+        uint32_t layerCount{};
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        std::vector<VkLayerProperties> layers{};
+        layers.resize(layerCount);
+
+        vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
+
+        bool validationSupport = true;
+        for (const auto &layer : s_validationLayers)
+        {
+            bool found = false;
+            for (const auto& property : layers)
+            {
+                if (strncmp(layer, property.layerName, 255) == 0)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                validationSupport = false;
+            }
+        }
+
+        gtAssert(s_enableValidation && validationSupport);
+
         VkInstance instance{};
 
         VkApplicationInfo appInfo{};
