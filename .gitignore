@@ -1,0 +1,17 @@
+.vs/
+.vs2019/
+.vs2017/
+build/
+bin/
+obj/
+bin-int/
+scripts/__pycache__
+external/VulkanSDK
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.vscproj
+*.vscproj.user
+.vscode/
+*.user
+*.log
