@@ -1,14 +1,15 @@
-#include <cassert>
 #include <GLFW/glfw3.h>
+#include <cassert>
+#include <vulkan/vulkan.h>
 
+#include "globals.hpp"
 #include "utilities.hpp"
 #include "window.hpp"
 
+using namespace gt::globals;
+
 namespace gt::window
 {
-    static uint32_t s_width = 800;
-    static uint32_t s_height = 600;
-    static const char* s_title  = "Grim Tithe";
 
     gtWindow *
         initializeWindow()
@@ -18,7 +19,7 @@ namespace gt::window
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        return glfwCreateWindow(s_width, s_height, s_title, nullptr, nullptr);
+        return glfwCreateWindow(g_width, g_height, g_title, nullptr, nullptr);
     }
 
     void
@@ -40,9 +41,19 @@ namespace gt::window
         glfwPollEvents();
     }
 
-    const char **
-        getVulkanExtensions(uint32_t *count)
+    void
+        getVulkanExtensions(std::vector<const char *> &extensions)
     {
-        return glfwGetRequiredInstanceExtensions(count);
+        extensions.clear();
+
+        uint32_t     glfwExtensionCount = 0;
+        const char **glfwExtensions     = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        extensions.assign(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+        if (g_enableValidation)
+        {
+            extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        }
     }
 } // namespace gt::window

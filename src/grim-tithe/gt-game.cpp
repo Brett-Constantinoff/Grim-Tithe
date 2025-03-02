@@ -1,5 +1,5 @@
 #include "gt-game.hpp"
-#include "vk.hpp"
+#include "vk-instance.hpp"
 #include "window.hpp"
 
 namespace gt::game
@@ -13,10 +13,10 @@ namespace gt::game
         // initial setup
         gtWindow *c_window = initializeWindow();
 
-        uint32_t     extensionCount = 0;
-        const char **c_extensions = getVulkanExtensions(&extensionCount);
+        std::vector<const char *> extensions{};
+        getVulkanExtensions(extensions);
 
-        VkInstance instance = createInstance(extensionCount, c_extensions);
+        VkInstance instance = createInstance(extensions);
 
         // main loop
         while (isOpen(c_window))

@@ -1,9 +1,10 @@
 #pragma once
 
+#include <vector>
 #include <vulkan/vulkan.h>
 
 namespace gt::vk
 {
-    [[nodiscard]] VkInstance &createInstance(uint32_t extensionCount, const char **c_extensions);
+    [[nodiscard]] VkInstance &createInstance(const std::vector<const char *> &c_extensions);
     void                      destroyInstance(VkInstance &instance);
 } // namespace gt::vk
