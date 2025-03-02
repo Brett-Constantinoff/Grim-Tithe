@@ -13,6 +13,4 @@ if %errorlevel% neq 0 (
 echo Running Vulkan SDK setup...
 python .\scripts\installVulkan.py
 
-.\external\premake\premake5.exe vs2022
-
 pause

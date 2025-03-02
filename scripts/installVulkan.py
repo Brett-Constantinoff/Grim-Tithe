@@ -52,7 +52,6 @@ class VulkanConfiguration:
         utils.DownloadFile(vulkanInstallURL, vulkanPath)
         print("Running Vulkan SDK installer...")
         os.startfile(os.path.abspath(vulkanPath))
-        print("Re-run this script after installation!")
         quit()
 
 if __name__ == "__main__":
