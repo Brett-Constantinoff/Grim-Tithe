@@ -1,4 +1,5 @@
 #include "gt-game.hpp"
+#include "vk-device.hpp"
 #include "vk-instance.hpp"
 #include "window.hpp"
 
@@ -17,6 +18,7 @@ namespace gt::game
         getVulkanExtensions(extensions);
 
         VkInstance instance = createInstance(extensions);
+        VkDevice   device   = getDevice(instance);
 
         // main loop
         while (isOpen(c_window))
@@ -25,6 +27,7 @@ namespace gt::game
         }
 
         // cleanup
+        destroyDevice(device);
         destroyInstance(instance);
         destroyWindow(c_window);
     }

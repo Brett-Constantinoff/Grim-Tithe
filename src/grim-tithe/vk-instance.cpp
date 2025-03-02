@@ -9,8 +9,7 @@ using namespace gt::globals;
 
 namespace gt::vk
 {
-    static const std::vector<const char *> s_validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    static VkDebugUtilsMessengerEXT        s_debugMessenger{};
+    static VkDebugUtilsMessengerEXT s_debugMessenger{};
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL
         debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
@@ -67,7 +66,7 @@ namespace gt::vk
         }
     }
 
-    VkInstance &
+    VkInstance
         createInstance(const std::vector<const char *> &c_extensions)
     {
         // check for validation
@@ -80,7 +79,7 @@ namespace gt::vk
         vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
 
         bool validationSupport = true;
-        for (const auto &layer : s_validationLayers)
+        for (const auto &layer : g_validationLayers)
         {
             bool found = false;
             for (const auto &property : layers)
@@ -95,6 +94,7 @@ namespace gt::vk
             if (!found)
             {
                 validationSupport = false;
+                break;
             }
         }
 
@@ -119,8 +119,8 @@ namespace gt::vk
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         if (g_enableValidation)
         {
-            createInfo.enabledLayerCount   = static_cast<uint32_t>(s_validationLayers.size());
-            createInfo.ppEnabledLayerNames = s_validationLayers.data();
+            createInfo.enabledLayerCount   = static_cast<uint32_t>(g_validationLayers.size());
+            createInfo.ppEnabledLayerNames = g_validationLayers.data();
 
             populateDebugMessengerCreateInfo(debugCreateInfo);
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
