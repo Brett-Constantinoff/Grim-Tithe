@@ -7,7 +7,7 @@ the technical / graphical asspect of game development as no industry standard en
 Even though the language is C++, you'll notice that I dont make use of many OOP principles, this is mainly to avoid over the top, complex abstractions that are not needed for a project of this size.
 Plus, as a developer I find that you can get sucked into the C++ rabbit hole of OOP and never come out, so I try to avoid that as much as possible here.
 
-You may ask yourself "Why are you using C++ then?" the answer to that is because I enjoy the language, duh. What am I gonna use isntead? Rust? I dont think so.
+You may ask yourself "Why are you using C++ then?" the answer to that is because I enjoy the language, duh. What am I gonna use instead? Rust? I dont think so.
 
 # Cloning
 This project uses submodules, so when cloning you'll need to use the `--recurse-submodules` flag.
