@@ -123,4 +123,10 @@ namespace gt::vk
     {
         vkDestroyDevice(c_context.device, nullptr);
     }
+
+    void
+        waitForGpuOperations(const VulkanContext& c_context)
+    {
+        vkDeviceWaitIdle(c_context.device);
+    }
 } // namespace gt::vk

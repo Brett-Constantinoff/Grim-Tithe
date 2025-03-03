@@ -16,7 +16,7 @@ namespace gt::window
         gtAssert(glfwInit() != GLFW_FALSE);
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         return glfwCreateWindow(g_width, g_height, g_title, nullptr, nullptr);
     }

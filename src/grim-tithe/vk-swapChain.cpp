@@ -105,8 +105,7 @@ namespace gt::vk
         createInfo.presentMode    = mode;
         createInfo.clipped        = VK_TRUE;
 
-        // will be updated with window resizing
-        createInfo.oldSwapchain   = VK_NULL_HANDLE;
+        createInfo.oldSwapchain   = context.swapChain;
 
         gtAssert(vkCreateSwapchainKHR(context.device, &createInfo, nullptr, &context.swapChain) == VK_SUCCESS);
 
@@ -119,8 +118,46 @@ namespace gt::vk
         context.extent = extent;
     }
 
-    void destroySwapChain(const VulkanContext& c_context)
+    void 
+        destroySwapChain(const VulkanContext& c_context)
     {
         vkDestroySwapchainKHR(c_context.device, c_context.swapChain, nullptr);
+    }
+
+    void
+        createImageViews(VulkanContext& context)
+    {
+        context.swapChainImageViews.resize(context.swapChainImages.size());
+
+        for (size_t i = 0; i < context.swapChainImages.size(); ++i)
+        {
+            VkImageViewCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            createInfo.image = context.swapChainImages[i];
+            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            createInfo.format   = context.format;
+
+            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+            createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.baseMipLevel   = 0;
+            createInfo.subresourceRange.levelCount     = 1;
+            createInfo.subresourceRange.baseArrayLayer = 0;
+            createInfo.subresourceRange.layerCount     = 1;
+
+            gtAssert(vkCreateImageView(context.device, &createInfo, nullptr, &context.swapChainImageViews[i]) == VK_SUCCESS);
+        }
+    }
+
+    void
+        destroyImageViews(const VulkanContext& c_context)
+    {
+        for (const auto& c_imageView : c_context.swapChainImageViews)
+        {
+            vkDestroyImageView(c_context.device, c_imageView, nullptr);
+        }
     }
 }

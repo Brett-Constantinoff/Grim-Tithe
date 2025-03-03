@@ -8,4 +8,5 @@ namespace gt::vk
 {
     void createDevice(VulkanContext& context);
     void destroyDevice(const VulkanContext& c_context);
+    void waitForGpuOperations(const VulkanContext& c_context);
 } // namespace gt::vk

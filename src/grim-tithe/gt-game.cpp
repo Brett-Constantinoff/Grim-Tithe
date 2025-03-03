@@ -22,14 +22,15 @@ namespace gt::game
         std::vector<const char *> extensions{};
         getVulkanExtensions(extensions, vkContext);
 
-        int framBufferWidth;
+        int frameBufferWidth;
         int frameBufferHeight;
-        getFrameBufferSize(window, &framBufferWidth, &frameBufferHeight);
+        getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
         createInstance(vkContext, extensions);
         createSurface(vkContext, window);
         createDevice(vkContext);
-        createSwapChain(vkContext, framBufferWidth, frameBufferHeight);
+        createSwapChain(vkContext, frameBufferWidth, frameBufferHeight);
+        createImageViews(vkContext);
 
         // main loop
         while (isOpen(window))
@@ -38,6 +39,9 @@ namespace gt::game
         }
 
         // cleanup
+        waitForGpuOperations(vkContext);
+
+        destroyImageViews(vkContext);
         destroySwapChain(vkContext);
         destroyDevice(vkContext);
         destroySurface(vkContext);
