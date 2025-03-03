@@ -5,51 +5,10 @@
 #include "globals.hpp"
 #include "utilities.hpp"
 #include "vk-device.hpp"
+#include "vk-utilities.hpp"
 
 namespace gt::vk
 {
-    using namespace gt::globals;
-
-    static QueueFamilyIndices
-        getQueueFamilies(const VkPhysicalDevice& c_device, const VkSurfaceKHR& c_surface)
-    {
-        QueueFamilyIndices indices{};
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(c_device, &queueFamilyCount, nullptr);
-
-        std::vector<VkQueueFamilyProperties> queueFamilies{};
-        queueFamilies.resize(queueFamilyCount);
-
-        vkGetPhysicalDeviceQueueFamilyProperties(c_device, &queueFamilyCount, queueFamilies.data());
-
-        int32_t i = 0;
-        for (const auto &queueFamily : queueFamilies)
-        {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                indices.graphicsFamily = i;
-            }
-
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(c_device, i, c_surface, &presentSupport);
-
-            if (presentSupport)
-            {
-                indices.presentFamily = i;
-            }
-
-            if (indices.isComplete())
-            {
-                break;
-            }
-
-            i++;
-        }
-
-        return indices;
-    }
-
     static bool
         checkDeviceExtensions(const VkPhysicalDevice &c_device, const VulkanContext &c_context)
     {
@@ -75,7 +34,16 @@ namespace gt::vk
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(c_device, &properties);
 
-        return getQueueFamilies(c_device, c_context.surface).isComplete() && checkDeviceExtensions(c_device, c_context);
+        bool extensionsSupported = checkDeviceExtensions(c_device, c_context);
+
+        bool swapChainGood = false;
+        if (extensionsSupported)
+        {
+            SwapChainDetails details = getSwapChainDetails(c_device, c_context);
+            swapChainGood            = !details.formats.empty() && !details.modes.empty();
+        }
+
+        return getQueueFamilies(c_device, c_context.surface).isComplete() && extensionsSupported && swapChainGood;
     }
 
     static void

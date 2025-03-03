@@ -55,4 +55,10 @@ namespace gt::window
             extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
     }
+
+    void
+        getFrameBufferSize(GLFWwindow* window, int* width, int* height)
+    {
+        glfwGetFramebufferSize(window, width, height);
+    }
 } // namespace gt::window

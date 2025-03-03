@@ -29,5 +29,11 @@ namespace gt::vk
 
         // surface
         VkSurfaceKHR surface = VK_NULL_HANDLE;
+
+        // swap chain
+        VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+        VkFormat format{};
+        VkExtent2D           extent{};
+        std::vector<VkImage> swapChainImages{};
 	};
 }

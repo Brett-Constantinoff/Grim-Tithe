@@ -12,6 +12,7 @@ namespace gt::window
     [[nodiscard]] GLFWwindow *initializeWindow();
     void                      destroyWindow(GLFWwindow *window);
     bool                      isOpen(GLFWwindow *window);
-    void                    pollEvents();
-    void                    getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context);
+    void                      pollEvents();
+    void                      getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context);
+    void                      getFrameBufferSize(GLFWwindow *window, int *width, int *height);
 } // namespace gt::window
