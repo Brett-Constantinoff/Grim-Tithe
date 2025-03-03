@@ -3,14 +3,13 @@
 
 #include "globals.hpp"
 #include "utilities.hpp"
+#include "vk-context.hpp"
 #include "vk-instance.hpp"
 
 using namespace gt::globals;
 
 namespace gt::vk
 {
-    static VkDebugUtilsMessengerEXT s_debugMessenger{};
-
     static VKAPI_ATTR VkBool32 VKAPI_CALL
         debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                       VkDebugUtilsMessageTypeFlagsEXT             messageType,
@@ -66,8 +65,8 @@ namespace gt::vk
         }
     }
 
-    VkInstance
-        createInstance(const std::vector<const char *> &c_extensions)
+    void
+        createInstance(VulkanContext& context, const std::vector<const char *> &c_extensions)
     {
         // check for validation
         uint32_t layerCount{};
@@ -79,7 +78,7 @@ namespace gt::vk
         vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
 
         bool validationSupport = true;
-        for (const auto &layer : g_validationLayers)
+        for (const auto &layer : context.validationLayers)
         {
             bool found = false;
             for (const auto &property : layers)
@@ -98,9 +97,7 @@ namespace gt::vk
             }
         }
 
-        gtAssert(g_enableValidation && validationSupport);
-
-        VkInstance instance{};
+        gtAssert(context.enableValidation && validationSupport);
 
         VkApplicationInfo appInfo{};
         appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -117,10 +114,10 @@ namespace gt::vk
         createInfo.ppEnabledExtensionNames = c_extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        if (g_enableValidation)
+        if (context.enableValidation)
         {
-            createInfo.enabledLayerCount   = static_cast<uint32_t>(g_validationLayers.size());
-            createInfo.ppEnabledLayerNames = g_validationLayers.data();
+            createInfo.enabledLayerCount   = static_cast<uint32_t>(context.validationLayers.size());
+            createInfo.ppEnabledLayerNames = context.validationLayers.data();
 
             populateDebugMessengerCreateInfo(debugCreateInfo);
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
@@ -131,29 +128,27 @@ namespace gt::vk
             createInfo.pNext             = nullptr;
         }
 
-        gtAssert(vkCreateInstance(&createInfo, nullptr, &instance) == VK_SUCCESS);
+        gtAssert(vkCreateInstance(&createInfo, nullptr, &context.instance) == VK_SUCCESS);
 
         // create debug messenger
-        if (g_enableValidation)
+        if (context.enableValidation)
         {
             VkDebugUtilsMessengerCreateInfoEXT createInfo{};
             populateDebugMessengerCreateInfo(createInfo);
 
-            gtAssert(createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &s_debugMessenger) == VK_SUCCESS);
+            gtAssert(createDebugUtilsMessengerEXT(context.instance, &createInfo, nullptr, &context.debugMessenger) == VK_SUCCESS);
         }
-
-        return instance;
     }
 
     void
-        destroyInstance(const VkInstance &c_instance)
+        destroyInstance(const VulkanContext &c_context)
     {
-        if (g_enableValidation)
+        if (c_context.enableValidation)
         {
-            destroyDebugUtilsMessengerEXT(c_instance, s_debugMessenger, nullptr);
+            destroyDebugUtilsMessengerEXT(c_context.instance, c_context.debugMessenger, nullptr);
         };
 
-        vkDestroyInstance(c_instance, nullptr);
+        vkDestroyInstance(c_context.instance, nullptr);
     }
 
 } // namespace gt::vk

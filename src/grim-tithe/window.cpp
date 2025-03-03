@@ -41,7 +41,7 @@ namespace gt::window
     }
 
     void
-        getVulkanExtensions(std::vector<const char *> &extensions)
+        getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context)
     {
         extensions.clear();
 
@@ -50,7 +50,7 @@ namespace gt::window
 
         extensions.assign(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-        if (g_enableValidation)
+        if (c_context.enableValidation)
         {
             extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }

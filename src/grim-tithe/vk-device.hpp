@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "vk-context.hpp"
+
 namespace gt::vk
 {
     struct QueueFamilyIndices
@@ -16,6 +18,6 @@ namespace gt::vk
         }
     };
 
-    [[nodiscard]] VkDevice getDevice(const VkInstance &c_instance, const VkSurfaceKHR &c_surface);
-    void                   destroyDevice(const VkDevice &c_device);
+    void createDevice(VulkanContext& context);
+    void destroyDevice(const VulkanContext& c_context);
 } // namespace gt::vk

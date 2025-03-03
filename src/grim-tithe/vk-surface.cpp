@@ -3,19 +3,14 @@
 
 namespace gt::vk
 {
-    [[nodiscard]] VkSurfaceKHR
-        createSurface(const VkInstance &c_instance, GLFWwindow *window)
+    void createSurface(VulkanContext& context, GLFWwindow *window)
     {
-        VkSurfaceKHR surface = VK_NULL_HANDLE;
-
-        gtAssert(glfwCreateWindowSurface(c_instance, window, nullptr, &surface) == VK_SUCCESS);
-
-        return surface;
+        gtAssert(glfwCreateWindowSurface(context.instance, window, nullptr, &context.surface) == VK_SUCCESS);
     }
 
     void
-        destroySurface(const VkInstance& c_instance, const VkSurfaceKHR& c_surface)
+        destroySurface(const VulkanContext& c_context)
     {
-        vkDestroySurfaceKHR(c_instance, c_surface, nullptr);
+        vkDestroySurfaceKHR(c_context.instance, c_context.surface, nullptr);
     }
 }

@@ -1,4 +1,5 @@
 #include <set>
+#include <string>
 #include <vector>
 
 #include "globals.hpp"
@@ -8,10 +9,6 @@
 namespace gt::vk
 {
     using namespace gt::globals;
-
-    static VkPhysicalDevice s_physicalDevice = VK_NULL_HANDLE;
-    static VkQueue          s_graphicsQueue  = VK_NULL_HANDLE;
-    static VkQueue          s_presentQueue   = VK_NULL_HANDLE;
 
     static QueueFamilyIndices
         getQueueFamilies(const VkPhysicalDevice& c_device, const VkSurfaceKHR& c_surface)
@@ -54,46 +51,64 @@ namespace gt::vk
     }
 
     static bool
-        isGpuGood(const VkPhysicalDevice& c_device, const VkSurfaceKHR& c_surface)
+        checkDeviceExtensions(const VkPhysicalDevice &c_device, const VulkanContext &c_context)
+    {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(c_device, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(c_device, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<std::string> requiredExtensions(c_context.deviceExtensions.begin(), c_context.deviceExtensions.end());
+
+        for (const auto &c_extension : availableExtensions)
+        {
+            requiredExtensions.erase(c_extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
+    }
+
+    static bool
+        isGpuGood(const VkPhysicalDevice& c_device, const VulkanContext& c_context)
     {
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(c_device, &properties);
 
-        return getQueueFamilies(c_device, c_surface).isComplete();
+        return getQueueFamilies(c_device, c_context.surface).isComplete() && checkDeviceExtensions(c_device, c_context);
     }
 
     static void
-        pickGpu(const VkInstance &c_instance, const VkSurfaceKHR &c_surface)
+        pickGpu(VulkanContext &context)
     {
         uint32_t gpuCount = 0;
-        vkEnumeratePhysicalDevices(c_instance, &gpuCount, nullptr);
+        vkEnumeratePhysicalDevices(context.instance, &gpuCount, nullptr);
 
         gtAssert(gpuCount != 0);
 
         std::vector<VkPhysicalDevice> gpus{};
         gpus.resize(gpuCount);
 
-        vkEnumeratePhysicalDevices(c_instance, &gpuCount, gpus.data());
+        vkEnumeratePhysicalDevices(context.instance, &gpuCount, gpus.data());
 
         for (const auto &gpu : gpus)
         {
-            if (isGpuGood(gpu, c_surface))
+            if (isGpuGood(gpu, context))
             {
-                s_physicalDevice = gpu;
+                context.physicalDevice = gpu;
+                break;
             }
         }
 
-        gtAssert(s_physicalDevice != VK_NULL_HANDLE);
+        gtAssert(context.physicalDevice != VK_NULL_HANDLE);
     }
 
-    VkDevice
-        getDevice(const VkInstance &c_instance, const VkSurfaceKHR &c_surface)
+    void
+        createDevice(VulkanContext &context)
     {
-        VkDevice device = VK_NULL_HANDLE;
+        pickGpu(context);
 
-        pickGpu(c_instance, c_surface);
-
-        QueueFamilyIndices indices = getQueueFamilies(s_physicalDevice, c_surface);
+        QueueFamilyIndices indices = getQueueFamilies(context.physicalDevice, context.surface);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<int32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
@@ -116,28 +131,28 @@ namespace gt::vk
         deviceCreateInfo.pQueueCreateInfos    = queueCreateInfos.data();
         deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         deviceCreateInfo.pEnabledFeatures     = &deviceFeatures;
+        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(context.deviceExtensions.size());
+        deviceCreateInfo.ppEnabledExtensionNames = context.deviceExtensions.data();
 
-        if (g_enableValidation)
+        if (context.enableValidation)
         {
-            deviceCreateInfo.enabledLayerCount   = static_cast<uint32_t>(g_validationLayers.size());
-            deviceCreateInfo.ppEnabledLayerNames = g_validationLayers.data();
+            deviceCreateInfo.enabledLayerCount   = static_cast<uint32_t>(context.validationLayers.size());
+            deviceCreateInfo.ppEnabledLayerNames = context.validationLayers.data();
         }
         else
         {
             deviceCreateInfo.enabledLayerCount = 0;
         }
 
-        gtAssert(vkCreateDevice(s_physicalDevice, &deviceCreateInfo, nullptr, &device) == VK_SUCCESS);
+        gtAssert(vkCreateDevice(context.physicalDevice, &deviceCreateInfo, nullptr, &context.device) == VK_SUCCESS);
 
-        vkGetDeviceQueue(device, indices.graphicsFamily, 0, &s_graphicsQueue);
-        vkGetDeviceQueue(device, indices.presentFamily, 0, &s_presentQueue);
-
-        return device;
+        vkGetDeviceQueue(context.device, indices.graphicsFamily, 0, &context.graphicsQueue);
+        vkGetDeviceQueue(context.device, indices.presentFamily, 0, &context.presentQueue);
     }
 
     void
-        destroyDevice(const VkDevice &c_device)
+        destroyDevice(const VulkanContext& c_context)
     {
-        vkDestroyDevice(c_device, nullptr);
+        vkDestroyDevice(c_context.device, nullptr);
     }
 } // namespace gt::vk

@@ -3,8 +3,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "vk-context.hpp"
+
 namespace gt::vk
 {
-    [[nodiscard]] VkSurfaceKHR createSurface(const VkInstance &c_instance, GLFWwindow* window);
-    void                       destroySurface(const VkInstance &c_instance, const VkSurfaceKHR &c_surface);
+    void createSurface(VulkanContext& context, GLFWwindow* window);
+    void destroySurface(const VulkanContext& c_context);
 }
