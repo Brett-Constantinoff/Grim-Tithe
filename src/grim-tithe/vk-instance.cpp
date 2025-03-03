@@ -39,14 +39,14 @@ namespace gt::vk
     }
 
     static VkResult
-        createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                     const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
+        createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *c_pCreateInfo,
+                                     const VkAllocationCallbacks *c_pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
     {
         auto func =
             (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr)
         {
-            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+            return func(instance, c_pCreateInfo, c_pAllocator, pDebugMessenger);
         }
         else
         {
@@ -56,13 +56,13 @@ namespace gt::vk
 
     static void
         destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                      const VkAllocationCallbacks *pAllocator)
+                                      const VkAllocationCallbacks *c_pAllocator)
     {
         auto func =
             (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr)
         {
-            func(instance, debugMessenger, pAllocator);
+            func(instance, debugMessenger, c_pAllocator);
         }
     }
 
@@ -146,14 +146,14 @@ namespace gt::vk
     }
 
     void
-        destroyInstance(VkInstance &instance)
+        destroyInstance(const VkInstance &c_instance)
     {
         if (g_enableValidation)
         {
-            destroyDebugUtilsMessengerEXT(instance, s_debugMessenger, nullptr);
+            destroyDebugUtilsMessengerEXT(c_instance, s_debugMessenger, nullptr);
         };
 
-        vkDestroyInstance(instance, nullptr);
+        vkDestroyInstance(c_instance, nullptr);
     }
 
 } // namespace gt::vk

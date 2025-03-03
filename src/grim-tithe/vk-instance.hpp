@@ -6,5 +6,5 @@
 namespace gt::vk
 {
     [[nodiscard]] VkInstance createInstance(const std::vector<const char *> &c_extensions);
-    void                     destroyInstance(VkInstance &instance);
+    void                     destroyInstance(const VkInstance &c_instance);
 } // namespace gt::vk

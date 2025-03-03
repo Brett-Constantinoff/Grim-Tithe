@@ -1,6 +1,7 @@
 #include "gt-game.hpp"
 #include "vk-device.hpp"
 #include "vk-instance.hpp"
+#include "vk-surface.hpp"
 #include "window.hpp"
 
 namespace gt::game
@@ -12,13 +13,14 @@ namespace gt::game
         run()
     {
         // initial setup
-        gtWindow *c_window = initializeWindow();
+        GLFWwindow *c_window = initializeWindow();
 
         std::vector<const char *> extensions{};
         getVulkanExtensions(extensions);
 
         VkInstance instance = createInstance(extensions);
-        VkDevice   device   = getDevice(instance);
+        VkSurfaceKHR surface  = createSurface(instance, c_window);
+        VkDevice   device   = getDevice(instance, surface);
 
         // main loop
         while (isOpen(c_window))
@@ -28,6 +30,7 @@ namespace gt::game
 
         // cleanup
         destroyDevice(device);
+        destroySurface(instance, surface);
         destroyInstance(instance);
         destroyWindow(c_window);
     }

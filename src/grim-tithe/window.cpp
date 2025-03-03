@@ -10,8 +10,7 @@ using namespace gt::globals;
 
 namespace gt::window
 {
-
-    gtWindow *
+    GLFWwindow *
         initializeWindow()
     {
         gtAssert(glfwInit() != GLFW_FALSE);
@@ -23,14 +22,14 @@ namespace gt::window
     }
 
     void
-        destroyWindow(gtWindow *window)
+        destroyWindow(GLFWwindow *window)
     {
         glfwDestroyWindow(window);
         glfwTerminate();
     }
 
     bool
-        isOpen(gtWindow *window)
+        isOpen(GLFWwindow *window)
     {
         return !glfwWindowShouldClose(window);
     }
