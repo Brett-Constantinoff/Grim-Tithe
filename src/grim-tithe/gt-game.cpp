@@ -2,6 +2,7 @@
 #include "vk-context.hpp"
 #include "vk-device.hpp"
 #include "vk-instance.hpp"
+#include "vk-pipeline.hpp"
 #include "vk-surface.hpp"
 #include "vk-swapChain.hpp"
 #include "window.hpp"
@@ -14,23 +15,26 @@ namespace gt::game
     void
         run()
     {
-        // initial setup
-        GLFWwindow *window = initializeWindow();
-
+        GLFWwindow   *window = initializeWindow();
         VulkanContext vkContext{};
 
-        std::vector<const char *> extensions{};
-        getVulkanExtensions(extensions, vkContext);
+        // initial setup
+        {
+            std::vector<const char *> extensions{};
+            getVulkanExtensions(extensions, vkContext);
 
-        int frameBufferWidth;
-        int frameBufferHeight;
-        getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
+            int frameBufferWidth;
+            int frameBufferHeight;
+            getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-        createInstance(vkContext, extensions);
-        createSurface(vkContext, window);
-        createDevice(vkContext);
-        createSwapChain(vkContext, frameBufferWidth, frameBufferHeight);
-        createImageViews(vkContext);
+            createInstance(vkContext, extensions);
+            createSurface(vkContext, window);
+            createDevice(vkContext);
+            createSwapChain(vkContext, frameBufferWidth, frameBufferHeight);
+            createImageViews(vkContext);
+            createRenderPass(vkContext);
+            createPipeline(vkContext);
+        }
 
         // main loop
         while (isOpen(window))
@@ -39,14 +43,18 @@ namespace gt::game
         }
 
         // cleanup
-        waitForGpuOperations(vkContext);
+        {
+            waitForGpuOperations(vkContext);
 
-        destroyImageViews(vkContext);
-        destroySwapChain(vkContext);
-        destroyDevice(vkContext);
-        destroySurface(vkContext);
-        destroyInstance(vkContext);
-        destroyWindow(window);
+            destroyPipeline(vkContext);
+            destroyRenderPass(vkContext);
+            destroyImageViews(vkContext);
+            destroySwapChain(vkContext);
+            destroyDevice(vkContext);
+            destroySurface(vkContext);
+            destroyInstance(vkContext);
+            destroyWindow(window);
+        }
     }
 
 } // namespace gt::game

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace gt::utilities
 {
@@ -10,5 +12,7 @@ namespace gt::utilities
 #else
 #define gtAssert(condition) assert(condition)
 #endif
+
+    void readFile(std::vector<char> &data, const std::string &c_fileName);
 
 } // namespace gt::utilities
