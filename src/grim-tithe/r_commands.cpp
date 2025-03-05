@@ -31,18 +31,18 @@ namespace gt::renderer
         allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool        = context.commandPool;
         allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = 1;
+        allocInfo.commandBufferCount = context.c_framesInFlight;
 
-        gtAssert(vkAllocateCommandBuffers(context.device, &allocInfo, &context.commandBuffer) == VK_SUCCESS);
+        gtAssert(vkAllocateCommandBuffers(context.device, &allocInfo, &context.commandBuffers[0]) == VK_SUCCESS);
     }
 
     static void
-        recordCommand(VulkanContext& context, uint32_t image)
+        recordCommand(VulkanContext& context, uint32_t image, uint32_t currentFrame)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        gtAssert(vkBeginCommandBuffer(context.commandBuffer, &beginInfo) == VK_SUCCESS);
+        gtAssert(vkBeginCommandBuffer(context.commandBuffers[currentFrame], &beginInfo) == VK_SUCCESS);
 
         VkClearValue clearValues[1]{}; 
         clearValues[0].color = {0.3f, 0.0f, 0.6f, 1.0f};
@@ -56,9 +56,9 @@ namespace gt::renderer
         renderPassInfo.clearValueCount   = 1; 
         renderPassInfo.pClearValues      = clearValues;
 
-        vkCmdBeginRenderPass(context.commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(context.commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(context.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
+        vkCmdBindPipeline(context.commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, context.pipeline);
 
         VkViewport viewport{};
         viewport.x        = 0.0f;
@@ -67,51 +67,51 @@ namespace gt::renderer
         viewport.height   = static_cast<float>(context.extent.height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(context.commandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(context.commandBuffers[currentFrame], 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
         scissor.extent = context.extent;
-        vkCmdSetScissor(context.commandBuffer, 0, 1, &scissor);
+        vkCmdSetScissor(context.commandBuffers[currentFrame], 0, 1, &scissor);
 
-        vkCmdDraw(context.commandBuffer, 3, 1, 0, 0);
+        vkCmdDraw(context.commandBuffers[currentFrame], 3, 1, 0, 0);
 
-        vkCmdEndRenderPass(context.commandBuffer);
+        vkCmdEndRenderPass(context.commandBuffers[currentFrame]);
 
-        gtAssert(vkEndCommandBuffer(context.commandBuffer) == VK_SUCCESS);
+        gtAssert(vkEndCommandBuffer(context.commandBuffers[currentFrame]) == VK_SUCCESS);
     }
 
     void
-        render(VulkanContext& context)
+        render(VulkanContext& context, uint32_t currentFrame)
     {
-        vkWaitForFences(context.device, 1, &context.inFlightFence, VK_TRUE, UINT64_MAX);
-        vkResetFences(context.device, 1, &context.inFlightFence);
+        vkWaitForFences(context.device, 1, &context.inFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(context.device, 1, &context.inFlightFence[currentFrame]);
 
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(context.device, context.swapChain, UINT64_MAX, context.imageAvailableSemaphore,
+        vkAcquireNextImageKHR(context.device, context.swapChain, UINT64_MAX, context.imageAvailableSemaphore[currentFrame],
                               VK_NULL_HANDLE, &imageIndex);
 
-        vkResetCommandBuffer(context.commandBuffer, 0);
+        vkResetCommandBuffer(context.commandBuffers[currentFrame], 0);
 
-        recordCommand(context, imageIndex);
+        recordCommand(context, imageIndex, currentFrame);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore          waitSemaphores[] = {context.imageAvailableSemaphore};
+        VkSemaphore          waitSemaphores[] = {context.imageAvailableSemaphore[currentFrame]};
         VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         submitInfo.waitSemaphoreCount         = 1;
         submitInfo.pWaitSemaphores            = waitSemaphores;
         submitInfo.pWaitDstStageMask          = waitStages;
         submitInfo.commandBufferCount         = 1;
-        submitInfo.pCommandBuffers            = &context.commandBuffer;
+        submitInfo.pCommandBuffers            = &context.commandBuffers[currentFrame];
 
-        VkSemaphore signalSemaphores[]  = {context.renderFinishedSemaphore};
+        VkSemaphore signalSemaphores[]  = {context.renderFinishedSemaphore[currentFrame]};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores    = signalSemaphores;
 
-        gtAssert(vkQueueSubmit(context.graphicsQueue, 1, &submitInfo, context.inFlightFence) == VK_SUCCESS);
+        gtAssert(vkQueueSubmit(context.graphicsQueue, 1, &submitInfo, context.inFlightFence[currentFrame]) == VK_SUCCESS);
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

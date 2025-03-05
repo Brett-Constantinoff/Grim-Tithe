@@ -83,17 +83,25 @@ namespace gt::renderer
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        gtAssert(vkCreateSemaphore(context.device, &semaphoreInfo, nullptr, &context.imageAvailableSemaphore) == VK_SUCCESS &&
-                 vkCreateSemaphore(context.device, &semaphoreInfo, nullptr, &context.renderFinishedSemaphore) == VK_SUCCESS &&
-                 vkCreateFence(context.device, &fenceInfo, nullptr, &context.inFlightFence) == VK_SUCCESS);
+        for (size_t i = 0; i < context.c_framesInFlight; ++i)
+        {
+            gtAssert(vkCreateSemaphore(context.device, &semaphoreInfo, nullptr, &context.imageAvailableSemaphore[i]) ==
+                         VK_SUCCESS &&
+                     vkCreateSemaphore(context.device, &semaphoreInfo, nullptr, &context.renderFinishedSemaphore[i]) ==
+                         VK_SUCCESS &&
+                     vkCreateFence(context.device, &fenceInfo, nullptr, &context.inFlightFence[i]) == VK_SUCCESS);
+        }
     }
 
     void
         destroySyncObjects(const VulkanContext& c_context)
     {
-        vkDestroySemaphore(c_context.device, c_context.imageAvailableSemaphore, nullptr);
-        vkDestroySemaphore(c_context.device, c_context.renderFinishedSemaphore, nullptr);
-        vkDestroyFence(c_context.device, c_context.inFlightFence, nullptr);
+        for (size_t i = 0; i < c_context.c_framesInFlight; ++i)
+        {
+            vkDestroySemaphore(c_context.device, c_context.imageAvailableSemaphore[i], nullptr);
+            vkDestroySemaphore(c_context.device, c_context.renderFinishedSemaphore[i], nullptr);
+            vkDestroyFence(c_context.device, c_context.inFlightFence[i], nullptr);
+        }
     }
 
 } // namespace gt::renderer

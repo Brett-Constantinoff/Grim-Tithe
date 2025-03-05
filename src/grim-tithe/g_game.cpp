@@ -76,10 +76,14 @@ namespace gt::game
         showWindow(window);
 
         // main loop
+        uint32_t currentFrame = 0;
         while (g_gameRunning)
         {
             pollEvents();
-            render(vkContext);
+            render(vkContext, currentFrame);
+
+            currentFrame = (currentFrame + 1) % vkContext.c_framesInFlight;
+
             isOpen(window);
         }
 

@@ -7,6 +7,9 @@ namespace gt::renderer
 {
     struct VulkanContext
     {
+        // misc
+        const static int32_t c_framesInFlight = 3;
+
         // instance
         VkInstance               instance = VK_NULL_HANDLE;
         VkDebugUtilsMessengerEXT debugMessenger{};
@@ -45,11 +48,11 @@ namespace gt::renderer
 
         // commands
         VkCommandPool commandPool{};
-        VkCommandBuffer commandBuffer{};
+        VkCommandBuffer commandBuffers[c_framesInFlight]{};
 
         // sync
-        VkSemaphore imageAvailableSemaphore;
-        VkSemaphore renderFinishedSemaphore;
-        VkFence     inFlightFence;
+        VkSemaphore imageAvailableSemaphore[c_framesInFlight]{};
+        VkSemaphore renderFinishedSemaphore[c_framesInFlight]{};
+        VkFence     inFlightFence[c_framesInFlight]{};
     };
 } // namespace gt::renderer
