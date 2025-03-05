@@ -1,9 +1,9 @@
 #include <filesystem>
 #include <fstream>
 
-#include "utilities.hpp"
+#include "m_utilities.hpp"
 
-namespace gt::utilities
+namespace gt::misc
 {
     void
         readFile(std::vector<char> &data, const std::string &c_fileName)
@@ -22,4 +22,4 @@ namespace gt::utilities
         file.read(data.data(), fileSize);
         file.close();
     }
-} // namespace gt::utilities
+} // namespace gt::misc

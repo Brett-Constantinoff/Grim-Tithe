@@ -1,15 +1,15 @@
 #include <iostream>
 #include <vector>
 
-#include "globals.hpp"
-#include "utilities.hpp"
-#include "vk-context.hpp"
-#include "vk-instance.hpp"
+#include "m_globals.hpp"
+#include "m_utilities.hpp"
+#include "r_context.hpp"
+#include "r_instance.hpp"
 
-using namespace gt::globals;
-
-namespace gt::vk
+namespace gt::renderer
 {
+    using namespace gt::misc;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL
         debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                       VkDebugUtilsMessageTypeFlagsEXT             messageType,
@@ -151,4 +151,4 @@ namespace gt::vk
         vkDestroyInstance(c_context.instance, nullptr);
     }
 
-} // namespace gt::vk
+} // namespace gt::renderer

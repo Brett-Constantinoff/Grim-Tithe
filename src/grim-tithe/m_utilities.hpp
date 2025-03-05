@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace gt::utilities
+namespace gt::misc
 {
 
 #ifdef NDEBUG
@@ -15,4 +15,4 @@ namespace gt::utilities
 
     void readFile(std::vector<char> &data, const std::string &c_fileName);
 
-} // namespace gt::utilities
+} // namespace gt::misc

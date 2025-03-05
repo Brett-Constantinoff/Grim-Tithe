@@ -3,16 +3,17 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-#include "vk-context.hpp"
+#include "r_context.hpp"
 
-namespace gt::window
+namespace gt::implementations
 {
-    using namespace gt::vk;
+    using namespace gt::renderer;
 
     [[nodiscard]] GLFWwindow *initializeWindow();
     void                      destroyWindow(GLFWwindow *window);
-    bool                      isOpen(GLFWwindow *window);
+    void                      showWindow(GLFWwindow *window);
+    void                      isOpen(GLFWwindow *window);
     void                      pollEvents();
     void                      getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context);
     void                      getFrameBufferSize(GLFWwindow *window, int *width, int *height);
-} // namespace gt::window
+} // namespace gt::implmentations

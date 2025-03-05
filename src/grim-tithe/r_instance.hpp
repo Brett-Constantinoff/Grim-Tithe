@@ -3,10 +3,10 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-#include "vk-context.hpp"
+#include "r_context.hpp"
 
-namespace gt::vk
+namespace gt::renderer
 {
     void createInstance(VulkanContext &context, const std::vector<const char *> &c_extensions);
     void destroyInstance(const VulkanContext &c_context);
-} // namespace gt::vk
+} // namespace gt::renderer

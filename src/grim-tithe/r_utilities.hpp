@@ -3,9 +3,9 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-#include "vk-context.hpp"
+#include "r_context.hpp"
 
-namespace gt::vk
+namespace gt::renderer
 {
     struct QueueFamilyIndices
     {
@@ -28,4 +28,6 @@ namespace gt::vk
 
     [[nodiscard]] QueueFamilyIndices getQueueFamilies(const VkPhysicalDevice &c_device, const VkSurfaceKHR &c_surface);
     [[nodiscard]] SwapChainDetails   getSwapChainDetails(const VkPhysicalDevice &c_device, const VulkanContext &c_context);
-}
+    void                             createSyncObjects(VulkanContext &context);
+    void                             destroySyncObjects(const VulkanContext& c_context);
+} // namespace gt::vk

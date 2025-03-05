@@ -1,7 +1,7 @@
-#include "utilities.hpp"
-#include "vk-surface.hpp"
+#include "m_utilities.hpp"
+#include "r_surface.hpp"
 
-namespace gt::vk
+namespace gt::renderer
 {
     void createSurface(VulkanContext& context, GLFWwindow *window)
     {
@@ -13,4 +13,4 @@ namespace gt::vk
     {
         vkDestroySurfaceKHR(c_context.instance, c_context.surface, nullptr);
     }
-}
+} // namespace gt::renderer

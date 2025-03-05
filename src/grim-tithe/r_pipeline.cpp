@@ -1,11 +1,11 @@
 #include <filesystem>
 
-#include "utilities.hpp"
-#include "vk-pipeline.hpp"
+#include "m_utilities.hpp"
+#include "r_pipeline.hpp"
 
-namespace gt::vk
+namespace gt::renderer
 {
-    using namespace gt::utilities;
+    using namespace gt::misc;
 
     static void
         compileShader(const std::string &c_filePath, const std::string &c_fileOutputPath)
@@ -201,6 +201,16 @@ namespace gt::vk
         renderPassInfo.subpassCount    = 1;
         renderPassInfo.pSubpasses      = &subpass;
 
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass          = 0;
+        dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcAccessMask       = 0;
+        dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies   = &dependency;
+
         gtAssert(vkCreateRenderPass(context.device, &renderPassInfo, nullptr, &context.renderPass) == VK_SUCCESS);
     }
 
@@ -210,4 +220,4 @@ namespace gt::vk
         vkDestroyRenderPass(c_context.device, c_context.renderPass, nullptr);
     }
 
-} // namespace gt::vk
+} // namespace gt::renderer

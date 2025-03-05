@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <limits> 
 
-#include "utilities.hpp"
-#include "vk-swapChain.hpp"
-#include "vk-utilities.hpp"
+#include "m_utilities.hpp"
+#include "r_swapChain.hpp"
+#include "r_utilities.hpp"
 
-namespace gt::vk
+namespace gt::renderer
 {
     static VkSurfaceFormatKHR
         getSwapFormat(const std::vector<VkSurfaceFormatKHR>& c_formats)
@@ -160,4 +160,35 @@ namespace gt::vk
             vkDestroyImageView(c_context.device, c_imageView, nullptr);
         }
     }
-}
+
+    void 
+        createFramebuffers(VulkanContext& context)
+    {
+        context.framebuffers.resize(context.swapChainImageViews.size());
+
+        for (size_t i = 0; i < context.swapChainImageViews.size(); i++)
+        {
+            VkImageView attachments[] = {context.swapChainImageViews[i]};
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass      = context.renderPass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments    = attachments;
+            framebufferInfo.width           = context.extent.width;
+            framebufferInfo.height          = context.extent.height;
+            framebufferInfo.layers          = 1;
+
+            gtAssert(vkCreateFramebuffer(context.device, &framebufferInfo, nullptr, &context.framebuffers[i]) == VK_SUCCESS);
+        }
+    }
+
+    void
+        destroyFramebuffers(const VulkanContext &c_context)
+    {
+        for (const auto& c_framebuffer : c_context.framebuffers)
+        {
+            vkDestroyFramebuffer(c_context.device, c_framebuffer, nullptr);
+        }
+    }
+} // namespace gt::renderer

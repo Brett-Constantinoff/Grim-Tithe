@@ -1,6 +1,8 @@
-#include "vk-utilities.hpp"
+#include "m_utilities.hpp"
 
-namespace gt::vk
+#include "r_utilities.hpp"
+
+namespace gt::renderer
 {
     QueueFamilyIndices
         getQueueFamilies(const VkPhysicalDevice& c_device, const VkSurfaceKHR& c_surface)
@@ -70,4 +72,28 @@ namespace gt::vk
 
         return details;
     }
-}
+
+    void
+        createSyncObjects(VulkanContext& context)
+    {
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        gtAssert(vkCreateSemaphore(context.device, &semaphoreInfo, nullptr, &context.imageAvailableSemaphore) == VK_SUCCESS &&
+                 vkCreateSemaphore(context.device, &semaphoreInfo, nullptr, &context.renderFinishedSemaphore) == VK_SUCCESS &&
+                 vkCreateFence(context.device, &fenceInfo, nullptr, &context.inFlightFence) == VK_SUCCESS);
+    }
+
+    void
+        destroySyncObjects(const VulkanContext& c_context)
+    {
+        vkDestroySemaphore(c_context.device, c_context.imageAvailableSemaphore, nullptr);
+        vkDestroySemaphore(c_context.device, c_context.renderFinishedSemaphore, nullptr);
+        vkDestroyFence(c_context.device, c_context.inFlightFence, nullptr);
+    }
+
+} // namespace gt::renderer

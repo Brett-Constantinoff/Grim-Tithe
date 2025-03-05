@@ -3,7 +3,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-namespace gt::vk
+namespace gt::renderer
 {
     struct VulkanContext
     {
@@ -36,10 +36,20 @@ namespace gt::vk
         VkExtent2D               extent{};
         std::vector<VkImage>     swapChainImages{};
         std::vector<VkImageView> swapChainImageViews{};
+        std::vector<VkFramebuffer> framebuffers{};
 
         // graphics pipeline
         VkRenderPass     renderPass{};
         VkPipelineLayout layout{};
         VkPipeline       pipeline{};
+
+        // commands
+        VkCommandPool commandPool{};
+        VkCommandBuffer commandBuffer{};
+
+        // sync
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderFinishedSemaphore;
+        VkFence     inFlightFence;
     };
-} // namespace gt::vk
+} // namespace gt::renderer

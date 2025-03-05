@@ -2,13 +2,13 @@
 #include <cassert>
 #include <vulkan/vulkan.h>
 
-#include "globals.hpp"
-#include "utilities.hpp"
-#include "window.hpp"
+#include "m_globals.hpp"
+#include "m_utilities.hpp"
+#include "i_window.hpp"
 
-using namespace gt::globals;
+using namespace gt::misc;
 
-namespace gt::window
+namespace gt::implementations
 {
     GLFWwindow *
         initializeWindow()
@@ -17,8 +17,12 @@ namespace gt::window
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-        return glfwCreateWindow(g_width, g_height, g_title, nullptr, nullptr);
+        GLFWwindow *window = glfwCreateWindow(g_width, g_height, g_title, nullptr, nullptr);
+        gtAssert(window != nullptr);
+
+        return window;
     }
 
     void
@@ -27,11 +31,20 @@ namespace gt::window
         glfwDestroyWindow(window);
         glfwTerminate();
     }
+    
+    void
+        showWindow(GLFWwindow* window)
+    {
+        glfwShowWindow(window);
+    }
 
-    bool
+    void
         isOpen(GLFWwindow *window)
     {
-        return !glfwWindowShouldClose(window);
+        if (glfwWindowShouldClose(window))
+        {
+            g_gameRunning = false;
+        }
     }
 
     void
@@ -61,4 +74,4 @@ namespace gt::window
     {
         glfwGetFramebufferSize(window, width, height);
     }
-} // namespace gt::window
+} // namespace gt::implementations

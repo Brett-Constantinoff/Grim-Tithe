@@ -3,9 +3,10 @@
 #include <cstdint>
 #include <vector>
 
-namespace gt::globals
+namespace gt::misc
 {
     extern uint32_t                        g_width;
     extern uint32_t                        g_height;
     extern const char                     *g_title;
-} // namespace gt::globals
+    extern bool                            g_gameRunning;
+} // namespace gt::misc

@@ -1,7 +1,7 @@
-#include "gt-game.hpp"
+#include "g_game.hpp"
 
 int
-main()
+    main()
 {
     gt::game::run();
     return 0;

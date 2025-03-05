@@ -2,12 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "globals.hpp"
-#include "utilities.hpp"
-#include "vk-device.hpp"
-#include "vk-utilities.hpp"
+#include "m_globals.hpp"
+#include "m_utilities.hpp"
+#include "r_device.hpp"
+#include "r_utilities.hpp"
 
-namespace gt::vk
+namespace gt::renderer
 {
     static bool
         checkDeviceExtensions(const VkPhysicalDevice &c_device, const VulkanContext &c_context)
