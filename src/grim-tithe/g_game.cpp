@@ -103,7 +103,7 @@ namespace gt::game
                 renderer::createFramebuffers(vkContext);
             }
 
-            renderer::render(vkContext, currentFrame, misc::g_resize);
+            renderer::render(vkContext, currentFrame);
 
             currentFrame = (currentFrame + 1) % vkContext.c_framesInFlight;
 

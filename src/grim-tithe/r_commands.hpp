@@ -7,5 +7,5 @@ namespace gt::renderer
     void createCommandPool(VulkanContext &context);
     void destroyCommandPool(const VulkanContext& context);
     void createCommandBuffer(VulkanContext& context);
-    void render(VulkanContext &context, uint32_t currentFrame, bool resize);
+    void render(VulkanContext &context, uint32_t currentFrame);
 } // namespace gt::renderer
