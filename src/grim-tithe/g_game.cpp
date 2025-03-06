@@ -80,11 +80,37 @@ namespace gt::game
         while (g_gameRunning)
         {
             pollEvents();
-            render(vkContext, currentFrame);
+
+            if (g_resize)
+            {
+                vkContext.oldSwapChain = vkContext.swapChain;
+
+                int frameBufferWidth;
+                int frameBufferHeight;
+                getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+                while (frameBufferHeight == 0 || frameBufferWidth == 0)
+                {
+                    getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
+                    wait();
+                }
+
+                waitForGpuOperations(vkContext);
+
+                destroyFramebuffers(vkContext);
+                destroyImageViews(vkContext);
+
+                createSwapChain(vkContext, frameBufferWidth, frameBufferHeight);
+                createImageViews(vkContext);
+                createFramebuffers(vkContext);
+            }
+
+            render(vkContext, currentFrame, g_resize);
 
             currentFrame = (currentFrame + 1) % vkContext.c_framesInFlight;
 
             isOpen(window);
+            g_resize = false;
         }
 
         shutDown(vkContext, window);

@@ -54,6 +54,12 @@ namespace gt::implementations
     }
 
     void
+        wait()
+    {
+        glfwWaitEvents();
+    }
+
+    void
         getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context)
     {
         extensions.clear();

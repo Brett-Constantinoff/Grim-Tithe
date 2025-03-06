@@ -14,9 +14,16 @@ namespace gt::implementations
         }
     }
 
+    static void
+        frameBufferCallback(GLFWwindow* window, int width, int height)
+    {
+        g_resize = true;
+    }
+
     void
         setInputCallbacks(GLFWwindow *window)
     {
         glfwSetKeyCallback(window, keyCallback);
+        glfwSetFramebufferSizeCallback(window, frameBufferCallback);
     }
 }

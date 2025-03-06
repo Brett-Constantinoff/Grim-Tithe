@@ -8,4 +8,5 @@ namespace gt::misc
     uint32_t    g_height = 600;
     const char *g_title  = "Grim Tithe";
     bool        g_gameRunning = true;
+    bool        g_resize      = false;
 } // namespace gt::misc

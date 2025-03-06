@@ -82,7 +82,7 @@ namespace gt::renderer
     }
 
     void
-        render(VulkanContext& context, uint32_t currentFrame)
+        render(VulkanContext& context, uint32_t currentFrame, bool resize)
     {
         vkWaitForFences(context.device, 1, &context.inFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
         vkResetFences(context.device, 1, &context.inFlightFence[currentFrame]);

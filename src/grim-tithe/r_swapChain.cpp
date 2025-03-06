@@ -105,9 +105,15 @@ namespace gt::renderer
         createInfo.presentMode    = mode;
         createInfo.clipped        = VK_TRUE;
 
-        createInfo.oldSwapchain   = context.swapChain;
+        createInfo.oldSwapchain = context.oldSwapChain;
 
         gtAssert(vkCreateSwapchainKHR(context.device, &createInfo, nullptr, &context.swapChain) == VK_SUCCESS);
+
+        if (context.oldSwapChain != VK_NULL_HANDLE)
+        {
+            vkDestroySwapchainKHR(context.device, context.oldSwapChain, nullptr);
+            context.oldSwapChain = VK_NULL_HANDLE;
+        }
 
         vkGetSwapchainImagesKHR(context.device, context.swapChain, &imageCount, nullptr);
         context.swapChainImages.resize(imageCount);

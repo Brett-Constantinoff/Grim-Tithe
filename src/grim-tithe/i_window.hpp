@@ -14,6 +14,7 @@ namespace gt::implementations
     void                      showWindow(GLFWwindow *window);
     void                      isOpen(GLFWwindow *window);
     void                      pollEvents();
+    void                      wait();
     void                      getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context);
     void                      getFrameBufferSize(GLFWwindow *window, int *width, int *height);
 } // namespace gt::implmentations

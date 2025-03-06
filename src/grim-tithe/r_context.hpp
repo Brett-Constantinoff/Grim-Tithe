@@ -34,6 +34,7 @@ namespace gt::renderer
         VkSurfaceKHR surface = VK_NULL_HANDLE;
 
         // swap chain
+        VkSwapchainKHR           oldSwapChain = VK_NULL_HANDLE;
         VkSwapchainKHR           swapChain = VK_NULL_HANDLE;
         VkFormat                 format{};
         VkExtent2D               extent{};
