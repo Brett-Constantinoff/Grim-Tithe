@@ -7,7 +7,7 @@
 
 namespace gt::implementations
 {
-    using namespace gt::renderer;
+    using namespace gt;
 
     [[nodiscard]] GLFWwindow *initializeWindow();
     void                      destroyWindow(GLFWwindow *window);
@@ -15,6 +15,6 @@ namespace gt::implementations
     void                      isOpen(GLFWwindow *window);
     void                      pollEvents();
     void                      wait();
-    void                      getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context);
+    void                      getVulkanExtensions(std::vector<const char *> &extensions, const renderer::VulkanContext& c_context);
     void                      getFrameBufferSize(GLFWwindow *window, int *width, int *height);
 } // namespace gt::implmentations

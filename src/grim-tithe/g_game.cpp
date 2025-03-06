@@ -16,101 +16,99 @@
 
 namespace gt::game
 {
-    using namespace gt::implementations;
-    using namespace gt::renderer;
-    using namespace gt::misc;
+    using namespace gt;
 
     static GLFWwindow*
-        init(VulkanContext& context)
+        init(renderer::VulkanContext &context)
     {
-        GLFWwindow *window = initializeWindow();
+        GLFWwindow *window = implementations::initializeWindow();
 
-        setInputCallbacks(window);
+        implementations::setInputCallbacks(window);
 
         std::vector<const char *> extensions{};
-        getVulkanExtensions(extensions, context);
+        implementations::getVulkanExtensions(extensions, context);
 
         int frameBufferWidth;
         int frameBufferHeight;
-        getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
+        implementations::getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-        createInstance(context, extensions);
-        createSurface(context, window);
-        createDevice(context);
-        createSwapChain(context, frameBufferWidth, frameBufferHeight);
-        createImageViews(context);
-        createRenderPass(context);
-        createPipeline(context);
-        createFramebuffers(context);
-        createCommandPool(context);
-        createCommandBuffer(context);
-        createSyncObjects(context);
+        renderer::createInstance(context, extensions);
+        renderer::createSurface(context, window);
+        renderer::createDevice(context);
+        renderer::createSwapChain(context, frameBufferWidth, frameBufferHeight);
+        renderer::createImageViews(context);
+        renderer::createRenderPass(context);
+        renderer::createPipeline(context);
+        renderer::createFramebuffers(context);
+        renderer::createCommandPool(context);
+        renderer::createCommandBuffer(context);
+        renderer::createSyncObjects(context);
 
         return window;
     }
 
     static void
-        shutDown(const VulkanContext& c_context, GLFWwindow* window)
+        shutDown(const renderer::VulkanContext& c_context, GLFWwindow* window)
     {
-        waitForGpuOperations(c_context);
+        renderer::waitForGpuOperations(c_context);
 
-        destroySyncObjects(c_context);
-        destroyCommandPool(c_context);
-        destroyFramebuffers(c_context);
-        destroyPipeline(c_context);
-        destroyRenderPass(c_context);
-        destroyImageViews(c_context);
-        destroySwapChain(c_context);
-        destroyDevice(c_context);
-        destroySurface(c_context);
-        destroyInstance(c_context);
-        destroyWindow(window);
+        renderer::destroySyncObjects(c_context);
+        renderer::destroyCommandPool(c_context);
+        renderer::destroyFramebuffers(c_context);
+        renderer::destroyPipeline(c_context);
+        renderer::destroyRenderPass(c_context);
+        renderer::destroyImageViews(c_context);
+        renderer::destroySwapChain(c_context);
+        renderer::destroyDevice(c_context);
+        renderer::destroySurface(c_context);
+        renderer::destroyInstance(c_context);
+        implementations::destroyWindow(window);
     }
 
     void
         run()
     {
-        VulkanContext vkContext{};
+        renderer::VulkanContext vkContext{};
         GLFWwindow   *window = init(vkContext);
 
-        showWindow(window);
+        implementations::showWindow(window);
 
         // main loop
         uint32_t currentFrame = 0;
-        while (g_gameRunning)
+        while (misc::g_gameRunning)
         {
-            pollEvents();
+            implementations::pollEvents();
 
-            if (g_resize)
+            if (misc::g_resize)
             {
                 vkContext.oldSwapChain = vkContext.swapChain;
 
                 int frameBufferWidth;
                 int frameBufferHeight;
-                getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
+                implementations::getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
                 while (frameBufferHeight == 0 || frameBufferWidth == 0)
                 {
-                    getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
-                    wait();
+                    implementations::getFrameBufferSize(window, &frameBufferWidth, &frameBufferHeight);
+                    implementations::wait();
                 }
 
-                waitForGpuOperations(vkContext);
+                renderer::waitForGpuOperations(vkContext);
 
-                destroyFramebuffers(vkContext);
-                destroyImageViews(vkContext);
+                renderer::destroyFramebuffers(vkContext);
+                renderer::destroyImageViews(vkContext);
 
-                createSwapChain(vkContext, frameBufferWidth, frameBufferHeight);
-                createImageViews(vkContext);
-                createFramebuffers(vkContext);
+                renderer::createSwapChain(vkContext, frameBufferWidth, frameBufferHeight);
+                renderer::createImageViews(vkContext);
+                renderer::createFramebuffers(vkContext);
             }
 
-            render(vkContext, currentFrame, g_resize);
+            renderer::render(vkContext, currentFrame, misc::g_resize);
 
             currentFrame = (currentFrame + 1) % vkContext.c_framesInFlight;
 
-            isOpen(window);
-            g_resize = false;
+            implementations::isOpen(window);
+            misc::g_resize = false;
         }
 
         shutDown(vkContext, window);

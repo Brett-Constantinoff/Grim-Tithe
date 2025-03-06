@@ -5,7 +5,7 @@
 
 namespace gt::renderer
 {
-    using namespace gt::misc;
+    using namespace gt;
 
     static void
         compileShader(const std::string &c_filePath, const std::string &c_fileOutputPath)
@@ -28,7 +28,7 @@ namespace gt::renderer
         compileShader(c_filePath, c_fileOutputPath);
 
         std::vector<char> fileData{};
-        readFile(fileData, c_fileOutputPath);
+        misc::readFile(fileData, c_fileOutputPath);
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

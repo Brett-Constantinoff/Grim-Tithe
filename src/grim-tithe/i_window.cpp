@@ -6,10 +6,10 @@
 #include "m_utilities.hpp"
 #include "i_window.hpp"
 
-using namespace gt::misc;
-
 namespace gt::implementations
 {
+    using namespace gt;
+
     GLFWwindow *
         initializeWindow()
     {
@@ -19,7 +19,7 @@ namespace gt::implementations
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-        GLFWwindow *window = glfwCreateWindow(g_width, g_height, g_title, nullptr, nullptr);
+        GLFWwindow *window = glfwCreateWindow(misc::g_width, misc::g_height, misc::g_title, nullptr, nullptr);
         gtAssert(window != nullptr);
 
         return window;
@@ -43,7 +43,7 @@ namespace gt::implementations
     {
         if (glfwWindowShouldClose(window))
         {
-            g_gameRunning = false;
+            misc::g_gameRunning = false;
         }
     }
 
@@ -60,7 +60,7 @@ namespace gt::implementations
     }
 
     void
-        getVulkanExtensions(std::vector<const char *> &extensions, const VulkanContext& c_context)
+        getVulkanExtensions(std::vector<const char *> &extensions, const renderer::VulkanContext& c_context)
     {
         extensions.clear();
 
