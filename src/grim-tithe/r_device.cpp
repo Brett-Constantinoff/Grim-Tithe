@@ -1,5 +1,5 @@
+#include <algorithm>
 #include <set>
-#include <string>
 #include <vector>
 
 #include "m_globals.hpp"
@@ -12,24 +12,45 @@ namespace gt::renderer
     static bool
         checkDeviceExtensions(const VkPhysicalDevice &c_device, const VulkanContext &c_context)
     {
-        uint32_t extensionCount;
+        uint32_t extensionCount{};
         vkEnumerateDeviceExtensionProperties(c_device, nullptr, &extensionCount, nullptr);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(c_device, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<std::string> requiredExtensions(c_context.deviceExtensions.begin(), c_context.deviceExtensions.end());
-
-        for (const auto &c_extension : availableExtensions)
+        std::vector<const char *> availableExtensionNames(availableExtensions.size());
+        for (size_t i = 0; i < availableExtensionNames.size(); ++i)
         {
-            requiredExtensions.erase(c_extension.extensionName);
+            availableExtensionNames[i] = availableExtensions[i].extensionName;
         }
 
-        return requiredExtensions.empty();
+        std::vector<const char *> requiredExtensions(c_context.deviceExtensions.begin(),
+                                                     c_context.deviceExtensions.end());
+
+        if (requiredExtensions.size() > availableExtensionNames.size())
+        {
+            return false;
+        }
+
+        bool hasRequiredExtensions = true;
+        for (const auto &extension : requiredExtensions)
+        {
+            const auto &it = std::find_if(availableExtensionNames.begin(), availableExtensionNames.end(),
+                                          [&](const char *availableExtension)
+                                          { return misc::compareString(availableExtension, extension, CHAR_MAX); });
+
+            if (it == availableExtensionNames.end())
+            {
+                hasRequiredExtensions = false;
+                break;
+            }
+        }
+
+        return hasRequiredExtensions;
     }
 
     static bool
-        isGpuGood(const VkPhysicalDevice& c_device, const VulkanContext& c_context)
+        isGpuGood(const VkPhysicalDevice &c_device, const VulkanContext &c_context)
     {
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(c_device, &properties);
@@ -79,7 +100,7 @@ namespace gt::renderer
         QueueFamilyIndices indices = getQueueFamilies(context.physicalDevice, context.surface);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<int32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
+        std::set<int32_t>                    uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
 
         float queuePriority = 1.0f;
         for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -95,11 +116,11 @@ namespace gt::renderer
         VkPhysicalDeviceFeatures deviceFeatures{};
 
         VkDeviceCreateInfo deviceCreateInfo{};
-        deviceCreateInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        deviceCreateInfo.pQueueCreateInfos    = queueCreateInfos.data();
-        deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-        deviceCreateInfo.pEnabledFeatures     = &deviceFeatures;
-        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(context.deviceExtensions.size());
+        deviceCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        deviceCreateInfo.pQueueCreateInfos       = queueCreateInfos.data();
+        deviceCreateInfo.queueCreateInfoCount    = static_cast<uint32_t>(queueCreateInfos.size());
+        deviceCreateInfo.pEnabledFeatures        = &deviceFeatures;
+        deviceCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(context.deviceExtensions.size());
         deviceCreateInfo.ppEnabledExtensionNames = context.deviceExtensions.data();
 
         if (context.enableValidation)
@@ -119,14 +140,14 @@ namespace gt::renderer
     }
 
     void
-        destroyDevice(const VulkanContext& c_context)
+        destroyDevice(const VulkanContext &c_context)
     {
         vkDestroyDevice(c_context.device, nullptr);
     }
 
     void
-        waitForGpuOperations(const VulkanContext& c_context)
+        waitForGpuOperations(const VulkanContext &c_context)
     {
         vkDeviceWaitIdle(c_context.device);
     }
-} // namespace gt::vk
+} // namespace gt::renderer

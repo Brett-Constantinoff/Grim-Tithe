@@ -6,12 +6,9 @@
 namespace gt::misc
 {
     void
-        readFile(std::vector<char> &data, const std::string &c_fileName)
+        readFile(std::vector<char> &data, const char *c_filePath)
     {
-        const std::string c_exePath     = std::filesystem::current_path().string();
-        const std::string c_correctPath = c_exePath + c_fileName;
-
-        std::ifstream file(c_correctPath, std::ios::ate | std::ios::binary);
+        std::ifstream file(c_filePath, std::ios::ate | std::ios::binary);
 
         gtAssert(file.is_open());
 
@@ -21,5 +18,17 @@ namespace gt::misc
         file.seekg(0);
         file.read(data.data(), fileSize);
         file.close();
+    }
+
+    void
+        concatString(char *c_res, const char *c_other, const size_t c_bufferSize)
+    {
+        std::strncat(c_res, c_other, c_bufferSize - std::strlen(c_res) - 1);
+    }
+
+    bool
+        compareString(const char *c_str1, const char *c_str2, const size_t c_size)
+    {
+        return std::strncmp(c_str1, c_str2, c_size) == 0;
     }
 } // namespace gt::misc

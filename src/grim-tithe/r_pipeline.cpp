@@ -1,3 +1,4 @@
+#include <array>
 #include <filesystem>
 
 #include "m_utilities.hpp"
@@ -8,27 +9,63 @@ namespace gt::renderer
     using namespace gt;
 
     static void
-        compileShader(const std::string &c_filePath, const std::string &c_fileOutputPath)
+        createComputeDescriptorSetLayout(VulkanContext &context)
     {
-        const std::string c_vulkanSdk = std::getenv("VULKAN_SDK");
-        gtAssert(!c_vulkanSdk.empty());
+        std::array<VkDescriptorSetLayoutBinding, 2> layoutBindings{};
+        layoutBindings[0].binding            = 0;
+        layoutBindings[0].descriptorCount    = 1;
+        layoutBindings[0].descriptorType     = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        layoutBindings[0].pImmutableSamplers = nullptr;
+        layoutBindings[0].stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT;
 
-        const std::string c_exePath = std::filesystem::current_path().string();
+        layoutBindings[1].binding            = 1;
+        layoutBindings[1].descriptorCount    = 1;
+        layoutBindings[1].descriptorType     = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        layoutBindings[1].pImmutableSamplers = nullptr;
+        layoutBindings[1].stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT;
 
-        const std::string c_command =
-            c_vulkanSdk + "/Bin/glslc.exe " + c_exePath + c_filePath + " -o " + c_exePath + "/" + c_fileOutputPath;
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 2;
+        layoutInfo.pBindings    = layoutBindings.data();
 
-        int result = std::system(c_command.c_str());
+        gtAssert(vkCreateDescriptorSetLayout(context.device, &layoutInfo, nullptr,
+                                             &context.computeDescriptorSetLayout) == VK_SUCCESS);
+    }
+
+    static void
+        compileShader(const char *c_filePath, const char *c_fileName, const char *c_compiledFileName)
+    {
+        const char *c_vulkanSdk = std::getenv("VULKAN_SDK");
+        gtAssert(c_vulkanSdk != nullptr);
+
+        char command[CHAR_MAX] = {0};
+
+        misc::concatString(&(command[0]), c_vulkanSdk, sizeof(command));
+        misc::concatString(&(command[0]), "/Bin/glslc.exe ", sizeof(command));
+        misc::concatString(&(command[0]), c_filePath, sizeof(command));
+        misc::concatString(&(command[0]), c_fileName, sizeof(command));
+        misc::concatString(&(command[0]), " -o ", sizeof(command));
+        misc::concatString(&(command[0]), c_filePath, sizeof(command));
+        misc::concatString(&(command[0]), c_compiledFileName, sizeof(command));
+
+        int32_t result = std::system(command);
         gtAssert(result == 0);
     }
 
     static VkShaderModule
-        createShader(const VulkanContext &c_context, const std::string &c_filePath, const std::string &c_fileOutputPath)
+        createShader(const VulkanContext &c_context, const char *c_filePath, const char *c_fileName,
+                     const char *c_compiledFileName)
     {
-        compileShader(c_filePath, c_fileOutputPath);
+        compileShader(c_filePath, c_fileName, c_compiledFileName);
+
+        char compiledShaderPath[CHAR_MAX] = {0};
+
+        misc::concatString(&compiledShaderPath[0], c_filePath, sizeof(compiledShaderPath));
+        misc::concatString(&compiledShaderPath[0], c_compiledFileName, sizeof(compiledShaderPath));
 
         std::vector<char> fileData{};
-        misc::readFile(fileData, c_fileOutputPath);
+        misc::readFile(fileData, compiledShaderPath);
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -44,12 +81,10 @@ namespace gt::renderer
     void
         createPipeline(VulkanContext &context)
     {
-        const std::string &c_shaderPath = "/resources/shaders/";
+        const char *c_shaderPath = "resources/shaders/";
 
-        VkShaderModule vertShaderModule =
-            createShader(context, c_shaderPath + "mainShader.vert", c_shaderPath + "bin/vert.spv");
-        VkShaderModule fragShaderModule =
-            createShader(context, c_shaderPath + "mainShader.frag", c_shaderPath + "bin/frag.spv");
+        VkShaderModule vertShaderModule = createShader(context, c_shaderPath, "mainShader.vert", "vert.spv");
+        VkShaderModule fragShaderModule = createShader(context, c_shaderPath, "mainShader.frag", "frag.spv");
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -165,10 +200,51 @@ namespace gt::renderer
     }
 
     void
+        createComputePipeline(VulkanContext &context)
+    {
+        createComputeDescriptorSetLayout(context);
+
+        const char *c_shaderPath = "resources/shaders/";
+
+        VkShaderModule computeShaderModule = createShader(context, c_shaderPath, "mainShader.comp", "comp.spv");
+
+        VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+        computeShaderStageInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        computeShaderStageInfo.stage  = VK_SHADER_STAGE_COMPUTE_BIT;
+        computeShaderStageInfo.module = computeShaderModule;
+        computeShaderStageInfo.pName  = "main";
+
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType          = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts    = &context.computeDescriptorSetLayout;
+
+        gtAssert(vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &context.computePipelineLayout) ==
+                 VK_SUCCESS);
+
+        VkComputePipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType  = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        pipelineInfo.layout = context.computePipelineLayout;
+        pipelineInfo.stage  = computeShaderStageInfo;
+
+        gtAssert(vkCreateComputePipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+                                          &context.computePipeline) == VK_SUCCESS);
+
+        vkDestroyShaderModule(context.device, computeShaderModule, nullptr);
+    }
+
+    void
         destroyPipeline(const VulkanContext &c_context)
     {
         vkDestroyPipeline(c_context.device, c_context.pipeline, nullptr);
         vkDestroyPipelineLayout(c_context.device, c_context.layout, nullptr);
+    }
+
+    void
+        destroyComputePipeline(const VulkanContext &c_context)
+    {
+        vkDestroyPipeline(c_context.device, c_context.computePipeline, nullptr);
+        vkDestroyPipelineLayout(c_context.device, c_context.computePipelineLayout, nullptr);
     }
 
     void
@@ -218,6 +294,12 @@ namespace gt::renderer
         destroyRenderPass(const VulkanContext &c_context)
     {
         vkDestroyRenderPass(c_context.device, c_context.renderPass, nullptr);
+    }
+
+    void
+        destroyDescriptorSetLayout(const VulkanContext &c_context)
+    {
+        vkDestroyDescriptorSetLayout(c_context.device, c_context.computeDescriptorSetLayout, nullptr);
     }
 
 } // namespace gt::renderer

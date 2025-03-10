@@ -18,7 +18,7 @@ namespace gt::game
 {
     using namespace gt;
 
-    static GLFWwindow*
+    static GLFWwindow *
         init(renderer::VulkanContext &context)
     {
         GLFWwindow *window = implementations::initializeWindow();
@@ -39,6 +39,7 @@ namespace gt::game
         renderer::createImageViews(context);
         renderer::createRenderPass(context);
         renderer::createPipeline(context);
+        renderer::createComputePipeline(context);
         renderer::createFramebuffers(context);
         renderer::createCommandPool(context);
         renderer::createCommandBuffer(context);
@@ -48,13 +49,14 @@ namespace gt::game
     }
 
     static void
-        shutDown(const renderer::VulkanContext& c_context, GLFWwindow* window)
+        shutDown(const renderer::VulkanContext &c_context, GLFWwindow *window)
     {
         renderer::waitForGpuOperations(c_context);
-
         renderer::destroySyncObjects(c_context);
         renderer::destroyCommandPool(c_context);
         renderer::destroyFramebuffers(c_context);
+        renderer::destroyDescriptorSetLayout(c_context);
+        renderer::destroyComputePipeline(c_context);
         renderer::destroyPipeline(c_context);
         renderer::destroyRenderPass(c_context);
         renderer::destroyImageViews(c_context);
@@ -69,7 +71,7 @@ namespace gt::game
         run()
     {
         renderer::VulkanContext vkContext{};
-        GLFWwindow   *window = init(vkContext);
+        GLFWwindow             *window = init(vkContext);
 
         implementations::showWindow(window);
 

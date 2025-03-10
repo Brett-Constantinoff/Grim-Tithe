@@ -34,12 +34,12 @@ namespace gt::renderer
         VkSurfaceKHR surface = VK_NULL_HANDLE;
 
         // swap chain
-        VkSwapchainKHR           oldSwapChain = VK_NULL_HANDLE;
-        VkSwapchainKHR           swapChain = VK_NULL_HANDLE;
-        VkFormat                 format{};
-        VkExtent2D               extent{};
-        std::vector<VkImage>     swapChainImages{};
-        std::vector<VkImageView> swapChainImageViews{};
+        VkSwapchainKHR             oldSwapChain = VK_NULL_HANDLE;
+        VkSwapchainKHR             swapChain    = VK_NULL_HANDLE;
+        VkFormat                   format{};
+        VkExtent2D                 extent{};
+        std::vector<VkImage>       swapChainImages{};
+        std::vector<VkImageView>   swapChainImageViews{};
         std::vector<VkFramebuffer> framebuffers{};
 
         // graphics pipeline
@@ -47,8 +47,13 @@ namespace gt::renderer
         VkPipelineLayout layout{};
         VkPipeline       pipeline{};
 
+        // compute pipeline
+        VkPipelineLayout      computePipelineLayout{};
+        VkDescriptorSetLayout computeDescriptorSetLayout{};
+        VkPipeline            computePipeline{};
+
         // commands
-        VkCommandPool commandPool{};
+        VkCommandPool   commandPool{};
         VkCommandBuffer commandBuffers[c_framesInFlight]{};
 
         // sync
